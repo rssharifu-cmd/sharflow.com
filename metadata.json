@@ -1,0 +1,8 @@
+{
+  "name": "Sharflow",
+  "description": "A modern, responsive e-commerce web application with admin controls, persistent cart, checkout, profile and order management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
