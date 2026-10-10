@@ -34,6 +34,7 @@ import {
   ShieldCheck,
   PackageOpen,
 } from "lucide-react";
+import { trackAddToCart, trackPurchase, trackPageView } from "./utils/analytics";
 
 export default function App() {
   // Initialize standard localStorage database keys on load
@@ -74,6 +75,18 @@ export default function App() {
     localStorage.setItem("sharflow_cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
+  // Track page views on tab change for GA4
+  useEffect(() => {
+    const titles: Record<string, string> = {
+      shop: "Sharflow - Shop Catalog",
+      profile: "Sharflow - My Account",
+      admin: "Sharflow - Admin Dashboard",
+      checkout: "Sharflow - Checkout",
+      "order-confirmed": "Sharflow - Order Confirmed",
+    };
+    trackPageView(titles[activeTab] || `Sharflow - ${activeTab}`, `/${activeTab}`);
+  }, [activeTab]);
+
   // Dynamically compute the set of categories based on existing products in our catalog, so users can add custom ones
   const categories = React.useMemo(() => {
     const list = new Set(products.map((p) => p.category).filter(Boolean));
@@ -82,6 +95,7 @@ export default function App() {
 
   // Cart Operation Handlers
   const handleAddToCart = (product: Product, quantity = 1) => {
+    trackAddToCart(product, quantity);
     setCartItems((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
       if (existing) {
@@ -151,7 +165,8 @@ export default function App() {
     setProducts(updatedProducts);
     saveStoredProducts(updatedProducts);
 
-    // 3. Clear shopping cart
+    // 3. Clear shopping cart and track purchase in GA4
+    trackPurchase(newOrder.id, subtotal, cartItems);
     setCartItems([]);
     setLatestPlacedOrder(newOrder);
     setActiveTab("order-confirmed");
